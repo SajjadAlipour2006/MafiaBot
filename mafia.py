@@ -3,14 +3,16 @@ from random import choice
 from players import Player, VillagerPlayer, MafiaPlayer
 from phases import Night
 
-roles = [VillagerPlayer, MafiaPlayer]
-
 
 class Mafia:
+    roles = [VillagerPlayer, MafiaPlayer]
 
     def __init__(self):
         self.players = []
         self.phase = Night()
+
+    def __str__(self):
+        return "\n".join(str(player) for player in self.players)
 
     def add_player(self, id, name):
         player = Player(id, name)
@@ -28,7 +30,7 @@ class Mafia:
 
     def assign_roles(self):
         for i, player in enumerate(self.players):
-            role = choice(roles)
+            role = choice(self.roles)
             self.players[i] = role(player.id, player.name)
 
     def run(self, client, callback):

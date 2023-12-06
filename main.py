@@ -94,25 +94,23 @@ def print_callback_query(client, callback_query):
 def ocq_me(client, callback_query):
     if not client.mafia.add_player(callback_query.author.id, callback_query.author.first_name):
         return
-    players = "\n".join(str(player) for player in client.mafia.players)
     if not len(client.mafia.players) >= 3:
-        return callback_query.message.edit_text(f"کی میاد مافیا\n{players}", reply_markup=reply_markup1)
-    callback_query.message.edit_text(f"در حال شروع بازی...\n{players}")
+        return callback_query.message.edit_text(f"کی میاد مافیا\n{client.mafia}", reply_markup=reply_markup1)
+    callback_query.message.edit_text(f"در حال شروع بازی...\n{client.mafia}")
     client.mafia.assign_roles()
     for player in client.mafia.players:
         try:
             client.send_message(player.id, type(player).__name__)
         except Exception as error:
             print(f"{player.name}: {error}")
-    callback_query.message.edit_text(f"بازی شروع شد\n{players}")
+    callback_query.message.edit_text(f"بازی شروع شد\n{client.mafia}")
     Thread(target=client.mafia.run, args=(client, on_phase)).start()
 
 
 @bot.on_callback_query(regex("^not_me$"))
 def ocq_not_me(client, callback_query):
     if client.mafia.remove_player(callback_query.author.id):
-        players = "\n".join(str(player) for player in client.mafia.players)
-        return callback_query.message.edit_text(f"کی میاد مافیا\n{players}", reply_markup=reply_markup1)
+        return callback_query.message.edit_text(f"کی میاد مافیا\n{client.mafia}", reply_markup=reply_markup1)
 
 
 @bot.on_callback_query(regex("^vote:"))
