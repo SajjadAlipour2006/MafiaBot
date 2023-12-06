@@ -29,7 +29,8 @@ class Mafia:
         self.phase = Night()
 
     def __str__(self):
-        return "\n".join(f"{i}. {player}" for i, player in enumerate(self.players, start=1))
+        emojis = dict(enumerate(["💀", "❤️"]))
+        return "\n".join(f"{i}. {player} {emojis[player.is_alive]}" for i, player in enumerate(self.players, start=1))
 
     def add_player(self, id, name):
         player = Player(id, name)
