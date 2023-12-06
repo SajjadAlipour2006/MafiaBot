@@ -2,9 +2,9 @@ from threading import Event
 
 
 class Phase:
+    time = 0
 
     def __init__(self):
-        self.time = 0
         self.event = Event()
 
     def start(self):

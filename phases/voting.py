@@ -2,10 +2,10 @@ from .day import Day
 
 
 class Voting(Day):
+    time = 40
 
     def __init__(self):
         super().__init__()
-        self.time = 40
         self.voters = []
         self.voteds = []
         self.voted_player = None
