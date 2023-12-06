@@ -32,6 +32,10 @@ class Mafia:
         emojis = dict(enumerate(["💀", "❤️"]))
         return "\n".join(f"{i}. {player} {emojis[player.is_alive]}" for i, player in enumerate(self.players, start=1))
 
+    @property
+    def alive_players(self):
+        return [player for player in self.players if player.is_alive]
+
     def add_player(self, id, name):
         player = Player(id, name)
         if player in self.players:
@@ -56,4 +60,4 @@ class Mafia:
         while True:
             callback(client, self.phase)
             self.phase.start()
-            self.phase = self.phase.get_next_phase(self.players)
+            self.phase = self.phase.get_next_phase(self.alive_players)

@@ -40,7 +40,7 @@ def on_phase(client, phase):
         client.send_message(config.CHAT_ID, f"فاز شب شروع شد\nزمان: {phase.time}")
 
     elif isinstance(phase, Voting):
-        buttons = [[InlineKeyboardButton(player.name, f"vote:{i}")] for i, player in enumerate(client.mafia.players)]
+        buttons = [[InlineKeyboardButton(player.name, f"vote:{i}")] for i, player in enumerate(client.mafia.alive_players)]
         reply_markup = InlineKeyboard(buttons)
         client.voting_reply_markup = reply_markup
         client.voting_message = client.send_message(config.CHAT_ID, f"فاز رای گیری شروع شد\nزمان: {phase.time}", reply_markup=reply_markup)
@@ -119,9 +119,9 @@ def ocq_not_me(client, callback_query):
 
 @bot.on_callback_query(regex("^vote:"))
 def ocq_vote(client, callback_query):
-    voted = client.mafia.players[int(callback_query.data[5:])]
-    voter, = [player for player in client.mafia.players if player.id == callback_query.author.id]
-    client.mafia.phase.vote(client.mafia.players, voter, voted)
+    voted = client.mafia.alive_players[int(callback_query.data[5:])]
+    voter, = [player for player in client.mafia.alive_players if player.id == callback_query.author.id]
+    client.mafia.phase.vote(client.mafia.alive_players, voter, voted)
     votes = [f"{voter}: {voted}" for voter, voted in zip(client.mafia.phase.voters, client.mafia.phase.voteds)]
     votes = "\n".join(votes)
     print(votes)
@@ -133,7 +133,7 @@ def ocq_vote(client, callback_query):
 
 @bot.on_callback_query(regex("^yes$"))
 def ocq_yes(client, callback_query):
-    voter, = [player for player in client.mafia.players if player.id == callback_query.author.id]
+    voter, = [player for player in client.mafia.alive_players if player.id == callback_query.author.id]
     if voter in client.mafia.phase.voters:
         client.mafia.phase.unvote(voter)
         votes = [f"{voter}: {'گناهکار' if vote else 'بیگناه'}" for voter, vote in
@@ -155,7 +155,7 @@ def ocq_yes(client, callback_query):
 
 @bot.on_callback_query(regex("^no$"))
 def ocq_no(client, callback_query):
-    voter, = [player for player in client.mafia.players if player.id == callback_query.author.id]
+    voter, = [player for player in client.mafia.alive_players if player.id == callback_query.author.id]
     if voter in client.mafia.phase.voters:
         client.mafia.phase.unvote(voter)
         votes = [f"{voter}: {'گناهکار' if vote else 'بیگناه'}" for voter, vote in
