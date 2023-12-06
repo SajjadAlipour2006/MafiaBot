@@ -2,5 +2,5 @@ from .mafia import MafiaPlayer
 from .attacker import AttackerPlayer
 
 
-class Godfather(MafiaPlayer, AttackerPlayer):
+class GodfatherPlayer(MafiaPlayer, AttackerPlayer):
     attacking_power = 1

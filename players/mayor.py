@@ -1,7 +1,7 @@
 from .villager import VillagerPlayer
 
 
-class Mayor(VillagerPlayer):
+class MayorPlayer(VillagerPlayer):
 
     def __init__(self, id, name=None):
         super().__init__(id, name)
