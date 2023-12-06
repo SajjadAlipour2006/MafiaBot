@@ -2,6 +2,8 @@ from .player import Player
 
 
 class ProtectorPlayer(Player):
+    protecting_power = 0
 
     def protect(self, player):
-        raise NotImplementedError()
+        player.protection += self.protecting_power
+        return True
