@@ -1,11 +1,28 @@
 from random import choice
 
-from players import Player, VillagerPlayer, MafiaPlayer
+from players import (
+    Player,
+    DetectivePlayer,
+    DoctorPlayer,
+    GodfatherPlayer,
+    HitmanPlayer,
+    JokerPlayer,
+    MayorPlayer,
+    SniperPlayer
+)
 from phases import Night
 
 
 class Mafia:
-    roles = [VillagerPlayer, MafiaPlayer]
+    roles = [
+        DetectivePlayer,
+        DoctorPlayer,
+        GodfatherPlayer,
+        HitmanPlayer,
+        JokerPlayer,
+        MayorPlayer,
+        SniperPlayer
+    ]
 
     def __init__(self):
         self.players = []
@@ -31,6 +48,7 @@ class Mafia:
     def assign_roles(self):
         for i, player in enumerate(self.players):
             role = choice(self.roles)
+            self.roles.remove(role)
             self.players[i] = role(player.id, player.name)
 
     def run(self, client, callback):
