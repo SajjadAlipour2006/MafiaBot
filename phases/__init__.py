@@ -5,4 +5,5 @@ from .voting import Voting
 from .defending import Defending
 from .judging import Judging
 from .last_words import LastWords
+from .execution import Execution
 from .night import Night

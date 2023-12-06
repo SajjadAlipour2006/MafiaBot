@@ -5,7 +5,7 @@ from balethon.conditions import regex
 from balethon.objects import InlineKeyboardButton, InlineKeyboard
 
 from mafia import Mafia
-from phases import Conversing, Night, Voting, Defending, Judging, LastWords
+from phases import Conversing, Night, Voting, Defending, Judging, LastWords, Execution
 import config
 
 reply_markup1 = InlineKeyboard([
@@ -64,6 +64,10 @@ def on_phase(client, phase):
             client.voting_message.delete()
             client.voting_message = None
         client.send_message(config.CHAT_ID, f"فاز حرف آخر برای {phase.player} شروع شد\nزمان: {phase.time}")
+
+    elif isinstance(phase, Execution):
+        phase.player.get_executed()
+        client.send_message(config.CHAT_ID, f"فاز اعدام برای {phase.player} شروع شد\nزمان: {phase.time}")
 
 
 @bot.on_command()
