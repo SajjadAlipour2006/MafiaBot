@@ -70,6 +70,24 @@ def on_phase(client, phase):
         client.send_message(config.CHAT_ID, f"فاز اعدام برای {phase.player} شروع شد\nزمان: {phase.time}")
 
 
+@bot.on_message(chain="delete")
+async def delete_messages(client, message):
+    if client.mafia is None:
+        return
+
+    if isinstance(client.mafia.phase, Night):
+        await message.delete()
+
+    elif isinstance(client.mafia.phase, Defending) and client.mafia.phase.player.id != message.author.id:
+        await message.delete()
+
+    elif isinstance(client.mafia.phase, LastWords) and client.mafia.phase.player.id != message.author.id:
+        await message.delete()
+
+    elif isinstance(client.mafia.phase, Execution) and client.mafia.phase.player.id == message.author.id:
+        await message.delete()
+
+
 @bot.on_command()
 def start(client, message):
     client.mafia = Mafia()
