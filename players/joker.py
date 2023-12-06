@@ -7,4 +7,4 @@ class JokerPlayer(IndependentPlayer):
         return False
 
     def get_executed(self):
-        pass
+        super().get_executed()
