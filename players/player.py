@@ -17,4 +17,4 @@ class Player:
         return self.id == other.id
 
     def __str__(self):
-        return f"[{self.name}](https://web.bale.ai/chat?uid={self.id})"
+        return f"[{self.name}](https://web.bale.ai/chat?uid={self.id}) {'❤️' if self.is_alive else '💀'}"
