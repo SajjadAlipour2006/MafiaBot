@@ -1,4 +1,5 @@
 class Player:
+    emoji = None
 
     def __init__(self, id, name=None):
         self.id = id

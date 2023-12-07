@@ -4,6 +4,7 @@ from .godfather import Godfather
 
 
 class Detective(Villager, Investigator):
+    emoji = "🕵️‍♂️‍"
 
     def investigate(self, player):
         if isinstance(player, Godfather):

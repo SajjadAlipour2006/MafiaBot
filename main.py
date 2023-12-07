@@ -118,7 +118,7 @@ def ocq_me(client, callback_query):
         return callback_query.message.edit_text(f"کی میاد مافیا\n{client.mafia}", reply_markup=reply_markup1)
     callback_query.message.edit_text(f"در حال شروع بازی...\n{client.mafia}")
     client.mafia.assign_roles()
-    roles = [f"{player}: {type(player).__name__}" for player in client.mafia.players]
+    roles = [f"{player}: {type(player).__name__}{player.emoji}" for player in client.mafia.players]
     client.send_message(config.CHAT_ID, "\n".join(roles))
     for player in client.mafia.players:
         try:

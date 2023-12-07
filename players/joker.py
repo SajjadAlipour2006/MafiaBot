@@ -2,6 +2,7 @@ from .independent import Independent
 
 
 class Joker(Independent):
+    emoji = "👨‍🎤"
 
     def get_shot(self):
         return False
