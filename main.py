@@ -6,6 +6,7 @@ from balethon.objects import InlineKeyboardButton, InlineKeyboard
 
 from mafia import Mafia
 from phases import Conversing, Night, Voting, Defending, Judging, LastWords, Execution
+import texts
 import config
 
 reply_markup1 = InlineKeyboard([
@@ -31,19 +32,24 @@ bot = MafiaClient()
 
 def on_phase(client, phase):
     if isinstance(phase, Conversing):
-        client.send_message(config.CHAT_ID, f"فاز گفتگو شروع شد\nزمان: {phase.time}")
+        client.send_message(config.CHAT_ID, f"{texts.conversing_phase_started}\n{texts.time.format(phase.time)}")
 
     elif isinstance(phase, Night):
         if client.voting_message:
             client.voting_message.delete()
             client.voting_message = None
-        client.send_message(config.CHAT_ID, f"فاز شب شروع شد\nزمان: {phase.time}")
+        client.send_message(config.CHAT_ID, f"{texts.night_phase_started}\n{texts.time.format(phase.time)}")
+        for player in client.mafia.players:
+            try:
+                client.send_message(player.id, "نقش شبت رو انجام بده دا")
+            except Exception as error:
+                print(f"{player.name}: {error}")
 
     elif isinstance(phase, Voting):
         buttons = [[InlineKeyboardButton(player.name, f"vote:{i}")] for i, player in enumerate(client.mafia.alive_players)]
         reply_markup = InlineKeyboard(buttons)
         client.voting_reply_markup = reply_markup
-        client.voting_message = client.send_message(config.CHAT_ID, f"فاز رای گیری شروع شد\nزمان: {phase.time}", reply_markup=reply_markup)
+        client.voting_message = client.send_message(config.CHAT_ID, f"{texts.voting_phase_started}\n{texts.time.format(phase.time)}", reply_markup=reply_markup)
 
         from balethon.objects import CallbackQuery, User
 
@@ -54,20 +60,20 @@ def on_phase(client, phase):
         if client.voting_message:
             client.voting_message.delete()
             client.voting_message = None
-        client.send_message(config.CHAT_ID, f"بازیکن {phase.player} با رای گیری انتخاب شد\nفاز دفاع شروع شد\nزمان: {phase.time}")
+        client.send_message(config.CHAT_ID, f"{texts.voted_player.format(player=phase.player)}\n{texts.defending_phase_started}\n{texts.time.format(phase.time)}")
 
     elif isinstance(phase, Judging):
-        client.voting_message = client.send_message(config.CHAT_ID, f"فاز قضاوت شروع شد\nآیا {phase.player} گناهکار است؟\nزمان: {phase.time}", reply_markup=reply_markup2)
+        client.voting_message = client.send_message(config.CHAT_ID, f"{texts.judging_phase_started}\n{texts.is_player_guilty.format(player=phase.player)}\n{texts.time.format(phase.time)}", reply_markup=reply_markup2)
 
     elif isinstance(phase, LastWords):
         if client.voting_message:
             client.voting_message.delete()
             client.voting_message = None
-        client.send_message(config.CHAT_ID, f"فاز حرف آخر برای {phase.player} شروع شد\nزمان: {phase.time}")
+        client.send_message(config.CHAT_ID, f"{texts.last_words_phase_started}\n{texts.player(player=phase.player)}\n{texts.time.format(phase.time)}")
 
     elif isinstance(phase, Execution):
         phase.player.get_executed()
-        client.send_message(config.CHAT_ID, f"فاز اعدام برای {phase.player} شروع شد\nزمان: {phase.time}")
+        client.send_message(config.CHAT_ID, f"{texts.execution_phase_started}\n{texts.player(player=phase.player)}\n{texts.time.format(phase.time)}")
 
 
 @bot.on_message(chain="delete")
@@ -91,7 +97,7 @@ async def delete_messages(client, message):
 @bot.on_command()
 def start(client, message):
     client.mafia = Mafia()
-    msg = message.reply("کی میاد مافیا", reply_markup=reply_markup1)
+    msg = message.reply(texts.who_plays, reply_markup=reply_markup1)
 
     from balethon.objects import CallbackQuery, User
 
@@ -115,24 +121,26 @@ def ocq_me(client, callback_query):
     if not client.mafia.add_player(callback_query.author.id, callback_query.author.first_name):
         return
     if not len(client.mafia.players) >= 12:
-        return callback_query.message.edit_text(f"کی میاد مافیا\n{client.mafia}", reply_markup=reply_markup1)
-    callback_query.message.edit_text(f"در حال شروع بازی...\n{client.mafia}")
+        return callback_query.message.edit_text(f"{texts.who_plays}\n{client.mafia}", reply_markup=reply_markup1)
+    callback_query.message.edit_text(f"{texts.starting}\n{client.mafia}")
     client.mafia.assign_roles()
+
     roles = [f"{player}: {type(player).__name__}{player.emoji}" for player in client.mafia.players]
     client.send_message(config.CHAT_ID, "\n".join(roles))
+
     for player in client.mafia.players:
         try:
             client.send_message(player.id, type(player).__name__)
         except Exception as error:
             print(f"{player.name}: {error}")
-    callback_query.message.edit_text(f"بازی شروع شد\n{client.mafia}")
+    callback_query.message.edit_text(f"{texts.game_started}\n{client.mafia}")
     Thread(target=client.mafia.run, args=(client, on_phase)).start()
 
 
 @bot.on_callback_query(regex("^not_me$"))
 def ocq_not_me(client, callback_query):
     if client.mafia.remove_player(callback_query.author.id):
-        return callback_query.message.edit_text(f"کی میاد مافیا\n{client.mafia}", reply_markup=reply_markup1)
+        return callback_query.message.edit_text(f"{texts.who_plays}\n{client.mafia}", reply_markup=reply_markup1)
 
 
 @bot.on_callback_query(regex("^vote:"))
@@ -144,7 +152,7 @@ def ocq_vote(client, callback_query):
     votes = "\n".join(votes)
     print(votes)
     callback_query.message.edit_text(
-        f"فاز رای گیری شروع شد\nزمان: {client.mafia.phase.time}\n{votes}",
+        f"{texts.voting_phase_started}\n{texts.time.format(client.mafia.phase.time)}\n{votes}",
         reply_markup=client.voting_reply_markup
     )
 
@@ -154,19 +162,19 @@ def ocq_yes(client, callback_query):
     voter, = [player for player in client.mafia.alive_players if player.id == callback_query.author.id]
     if voter in client.mafia.phase.voters:
         client.mafia.phase.unvote(voter)
-        votes = [f"{voter}: {'گناهکار' if vote else 'بیگناه'}" for voter, vote in
-                 zip(client.mafia.phase.voters, client.mafia.phase.votes)]
+        choices = dict(enumerate([texts.guilty, texts.innocent]))
+        votes = [f"{voter}: {choices[vote]}" for voter, vote in zip(client.mafia.phase.voters, client.mafia.phase.votes)]
         votes = "\n".join(votes)
         callback_query.message.edit_text(
-            f"فاز قضاوت شروع شد\nآیا {client.mafia.phase.player} گناهکار است؟\nزمان: {client.mafia.phase.time}\n{votes}",
+            f"{texts.judging_phase_started}\n{texts.is_player_guilty.format(player=client.mafia.phase.player)}\n{texts.time.format(client.mafia.phase.time)}\n{votes}",
             reply_markup=reply_markup2
         )
     client.mafia.phase.vote(voter, True)
-    votes = [f"{voter}: {'گناهکار' if vote else 'بیگناه'}" for voter, vote in
-             zip(client.mafia.phase.voters, client.mafia.phase.votes)]
+    choices = dict(enumerate([texts.guilty, texts.innocent]))
+    votes = [f"{voter}: {choices[vote]}" for voter, vote in zip(client.mafia.phase.voters, client.mafia.phase.votes)]
     votes = "\n".join(votes)
     callback_query.message.edit_text(
-        f"فاز قضاوت شروع شد\nآیا {client.mafia.phase.player} گناهکار است؟\nزمان: {client.mafia.phase.time}\n{votes}",
+        f"{texts.judging_phase_started}\n{texts.is_player_guilty.format(player=client.mafia.phase.player)}\n{texts.time.format(client.mafia.phase.time)}\n{votes}",
         reply_markup=reply_markup2
     )
 
@@ -176,19 +184,19 @@ def ocq_no(client, callback_query):
     voter, = [player for player in client.mafia.alive_players if player.id == callback_query.author.id]
     if voter in client.mafia.phase.voters:
         client.mafia.phase.unvote(voter)
-        votes = [f"{voter}: {'گناهکار' if vote else 'بیگناه'}" for voter, vote in
-                 zip(client.mafia.phase.voters, client.mafia.phase.votes)]
+        choices = dict(enumerate([texts.guilty, texts.innocent]))
+        votes = [f"{voter}: {choices[vote]}" for voter, vote in zip(client.mafia.phase.voters, client.mafia.phase.votes)]
         votes = "\n".join(votes)
         callback_query.message.edit_text(
-            f"فاز قضاوت شروع شد\nآیا {client.mafia.phase.player} گناهکار است؟\nزمان: {client.mafia.phase.time}\n{votes}",
+            f"{texts.judging_phase_started}\n{texts.is_player_guilty.format(player=client.mafia.phase.player)}\n{texts.time.format(client.mafia.phase.time)}\n{votes}",
             reply_markup=reply_markup2
         )
     client.mafia.phase.vote(voter, False)
-    votes = [f"{voter}: {'گناهکار' if vote else 'بیگناه'}" for voter, vote in
-             zip(client.mafia.phase.voters, client.mafia.phase.votes)]
+    choices = dict(enumerate([texts.guilty, texts.innocent]))
+    votes = [f"{voter}: {choices[vote]}" for voter, vote in zip(client.mafia.phase.voters, client.mafia.phase.votes)]
     votes = "\n".join(votes)
     callback_query.message.edit_text(
-        f"فاز قضاوت شروع شد\nآیا {client.mafia.phase.player} گناهکار است؟\nزمان: {client.mafia.phase.time}\n{votes}",
+        f"{texts.judging_phase_started}\n{texts.is_player_guilty.format(player=client.mafia.phase.player)}\n{texts.time.format(client.mafia.phase.time)}\n{votes}",
         reply_markup=reply_markup2
     )
 
