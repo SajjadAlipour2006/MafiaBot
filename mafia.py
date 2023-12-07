@@ -1,28 +1,11 @@
 from random import choice
 
-from players import (
-    Player,
-    DetectivePlayer,
-    DoctorPlayer,
-    GodfatherPlayer,
-    HitmanPlayer,
-    JokerPlayer,
-    MayorPlayer,
-    SniperPlayer
-)
+from players import Player, Detective, Doctor, Godfather, Hitman, Joker, Mayor, Sniper
 from phases import Night
 
 
 class Mafia:
-    roles = [
-        DetectivePlayer,
-        DoctorPlayer,
-        GodfatherPlayer,
-        HitmanPlayer,
-        JokerPlayer,
-        MayorPlayer,
-        SniperPlayer
-    ]
+    roles = [Detective, Doctor, Godfather, Hitman, Joker, Mayor, Sniper]
 
     def __init__(self):
         self.players = []

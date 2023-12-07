@@ -1,6 +1,6 @@
-from .villager import VillagerPlayer
-from .attacker import AttackerPlayer
+from .villager import Villager
+from .attacker import Attacker
 
 
-class SniperPlayer(VillagerPlayer, AttackerPlayer):
+class Sniper(Villager, Attacker):
     attacking_power = 1

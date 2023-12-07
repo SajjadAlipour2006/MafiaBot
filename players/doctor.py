@@ -1,6 +1,6 @@
-from .villager import VillagerPlayer
-from .protector import ProtectorPlayer
+from .villager import Villager
+from .protector import Protector
 
 
-class DoctorPlayer(VillagerPlayer, ProtectorPlayer):
+class Doctor(Villager, Protector):
     protecting_power = 1

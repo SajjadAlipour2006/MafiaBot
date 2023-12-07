@@ -1,5 +1,5 @@
 from .player import Player
 
 
-class MafiaPlayer(Player):
+class Mafia(Player):
     pass

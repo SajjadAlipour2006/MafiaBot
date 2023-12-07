@@ -1,7 +1,7 @@
 from .player import Player
 
 
-class AttackerPlayer(Player):
+class Attacker(Player):
     attacking_power = 0
 
     def attack(self, player):

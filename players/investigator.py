@@ -1,7 +1,7 @@
 from .player import Player
 
 
-class InvestigatorPlayer(Player):
+class Investigator(Player):
 
     def investigate(self, player):
         raise NotImplementedError()

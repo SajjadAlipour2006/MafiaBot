@@ -1,7 +1,7 @@
 from .player import Player
 
 
-class ProtectorPlayer(Player):
+class Protector(Player):
     protecting_power = 0
 
     def protect(self, player):

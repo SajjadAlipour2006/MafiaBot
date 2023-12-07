@@ -1,5 +1,5 @@
 from .player import Player
 
 
-class IndependentPlayer(Player):
+class Independent(Player):
     pass

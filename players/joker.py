@@ -1,7 +1,7 @@
-from .independent import IndependentPlayer
+from .independent import Independent
 
 
-class JokerPlayer(IndependentPlayer):
+class Joker(Independent):
 
     def get_shot(self):
         return False

@@ -1,11 +1,11 @@
-from .villager import VillagerPlayer
-from .investigator import InvestigatorPlayer
-from .godfather import GodfatherPlayer
+from .villager import Villager
+from .investigator import Investigator
+from .godfather import Godfather
 
 
-class DetectivePlayer(VillagerPlayer, InvestigatorPlayer):
+class Detective(Villager, Investigator):
 
     def investigate(self, player):
-        if isinstance(player, GodfatherPlayer):
+        if isinstance(player, Godfather):
             return None
         return type(player)

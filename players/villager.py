@@ -1,5 +1,5 @@
 from .player import Player
 
 
-class VillagerPlayer(Player):
+class Villager(Player):
     pass
