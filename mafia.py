@@ -5,7 +5,7 @@ from phases import Night
 
 
 class Mafia:
-    roles = [Detective, Doctor, Godfather, Hitman, Joker, Mayor, Sniper]
+    roles = {Detective: 2, Doctor: 2, Godfather: 1, Hitman: 2, Joker: 1, Mayor: 2, Sniper: 2}
 
     def __init__(self):
         self.players = []
@@ -35,8 +35,11 @@ class Mafia:
 
     def assign_roles(self):
         for i, player in enumerate(self.players):
-            role = choice(self.roles)
-            self.roles.remove(role)
+            while True:
+                role = choice(list(self.roles))
+                role_count = sum(1 for p in self.players if isinstance(p, role))
+                if role_count <= self.roles[role]:
+                    break
             self.players[i] = role(player.id, player.name)
 
     def run(self, client, callback):

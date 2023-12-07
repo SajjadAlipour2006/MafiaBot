@@ -47,7 +47,7 @@ def on_phase(client, phase):
 
         from balethon.objects import CallbackQuery, User
 
-        callback_query = CallbackQuery("1", User(20, first_name="bot2"), client.voting_message, data="vote:0")
+        callback_query = CallbackQuery(author=User(id=200, first_name="bot2"), message=client.voting_message, data="vote:0")
         ocq_vote(client, callback_query)
 
     elif isinstance(phase, Defending):
@@ -95,11 +95,9 @@ def start(client, message):
 
     from balethon.objects import CallbackQuery, User
 
-    callback_query = CallbackQuery("1", User(100, first_name="bot1"), msg)
-    ocq_me(client, callback_query)
-
-    callback_query = CallbackQuery("1", User(20, first_name="bot2"), msg)
-    ocq_me(client, callback_query)
+    for i in range(1, 12):
+        callback_query = CallbackQuery(author=User(id=i * 100, first_name=f"bot{i}"), message=msg)
+        ocq_me(client, callback_query)
 
 
 @bot.on_message(chain="print")
@@ -116,10 +114,12 @@ def print_callback_query(client, callback_query):
 def ocq_me(client, callback_query):
     if not client.mafia.add_player(callback_query.author.id, callback_query.author.first_name):
         return
-    if not len(client.mafia.players) >= 3:
+    if not len(client.mafia.players) >= 12:
         return callback_query.message.edit_text(f"کی میاد مافیا\n{client.mafia}", reply_markup=reply_markup1)
     callback_query.message.edit_text(f"در حال شروع بازی...\n{client.mafia}")
     client.mafia.assign_roles()
+    roles = [f"{player}: {type(player).__name__}" for player in client.mafia.players]
+    client.send_message(config.CHAT_ID, "\n".join(roles))
     for player in client.mafia.players:
         try:
             client.send_message(player.id, type(player).__name__)
